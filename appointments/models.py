@@ -33,7 +33,7 @@ class Appointment(models.Model):
         return f"{self.patient} -> {self.doctor} ({self.date} {self.time})"
 
     def clean(self):
-        if self.doctor and not self.doctor.is_active:
+        if self.doctor_id and not self.doctor.is_active:
             raise ValidationError("Bu shifokor hozircha faol emas.")
 
 

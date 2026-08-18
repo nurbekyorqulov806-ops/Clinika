@@ -24,23 +24,63 @@ def _require_doctor(user):
 @login_required
 def book_appointment_view(request, doctor_id):
     _require_patient(request.user)
-    doctor = get_object_or_404(DoctorProfile, pk=doctor_id, is_active=True)
+
+    doctor = get_object_or_404(
+        DoctorProfile,
+        pk=doctor_id,
+        is_active=True
+    )
 
     if request.method == 'POST':
+        print("1. FORM YARATILDI")
+
         form = AppointmentForm(request.POST)
+
         if form.is_valid():
+            print("2. FORM VALID")
+
             appointment = form.save(commit=False)
+
+            print("3. FORM SAVE BO'LDI")
+
             appointment.doctor = doctor
             appointment.patient = request.user
-            if Appointment.objects.filter(doctor=doctor, date=appointment.date, time=appointment.time).exists():
-                messages.error(request, "Bu vaqt band. Boshqa vaqt tanlang.")
+
+            print("4. DOCTOR BERILDI:", appointment.doctor)
+
+            if Appointment.objects.filter(
+                doctor=doctor,
+                date=appointment.date,
+                time=appointment.time
+            ).exists():
+                messages.error(
+                    request,
+                    "Bu vaqt band. Boshqa vaqt tanlang."
+                )
             else:
                 appointment.save()
-                messages.success(request, "Navbatga muvaffaqiyatli yozildingiz!")
-                return redirect('appointments:patient_dashboard')
+
+                messages.success(
+                    request,
+                    "Navbatga muvaffaqiyatli yozildingiz!"
+                )
+
+                return redirect(
+                    'appointments:patient_dashboard'
+                )
+
     else:
         form = AppointmentForm()
-    return render(request, 'appointments/book_appointment.html', {'form': form, 'doctor': doctor})
+
+    return render(
+        request,
+        'appointments/book_appointment.html',
+        {
+            'form': form,
+            'doctor': doctor
+        }
+    )
+
 
 
 @login_required
