@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Tibbiy karta — MediCare{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="section-title">Mening tibbiy kartam</h2>
+  <div class="row g-3">
+    {% for record in records %}
+      <div class="col-lg-6">
+        <div class="card-clinic p-4">
+          <div class="d-flex justify-content-between mb-2">
+            <strong>Dr. {{ record.appointment.doctor.user.get_full_name }}</strong>
+            <span class="text-muted small">{{ record.appointment.date }}</span>
+          </div>
+          <p class="mb-1"><strong>Tashxis:</strong> {{ record.diagnosis }}</p>
+          <p class="mb-1"><strong>Retsept:</strong> {{ record.prescription|default:"—" }}</p>
+          {% if record.notes %}<p class="mb-0 text-muted small">{{ record.notes }}</p>{% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state"><i class="bi bi-file-earmark-medical"></i><p>Tibbiy karta yozuvlari yo'q.</p></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

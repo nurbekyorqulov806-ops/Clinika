@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Shifokor paneli — MediCare{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <img src="{{ user.avatar.url }}" class="avatar-circle avatar-md" alt="">
+    <div>
+      <h4 class="mb-0">Dr. {{ user.get_full_name }}</h4>
+      <span class="text-muted">{{ doctor_profile.specialization }}</span>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+      <div class="stat-card bg-teal"><div class="stat-number">{{ today_appointments.count }}</div><div>Bugungi qabullar</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card bg-blue"><div class="stat-number">{{ upcoming.count }}</div><div>Kelayotgan</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card bg-orange"><div class="stat-number">{{ pending.count }}</div><div>Tasdiqlanmagan</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card bg-purple"><div class="stat-number">{{ total_patients }}</div><div>Jami bemorlar</div></div>
+    </div>
+  </div>
+
+  <h5 class="mb-3">Bugungi qabullar</h5>
+  <div class="table-responsive mb-5">
+    <table class="table table-clinic align-middle">
+      <thead><tr><th>Bemor</th><th>Vaqt</th><th>Sabab</th><th>Holat</th><th>Amallar</th></tr></thead>
+      <tbody>
+        {% for appt in today_appointments %}
+          <tr>
+            <td>{{ appt.patient.get_full_name }}</td>
+            <td>{{ appt.time|time:"H:i" }}</td>
+            <td>{{ appt.reason|default:"—" }}</td>
+            <td><span class="badge-status badge-status-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+            <td>
+              <div class="d-flex gap-1 flex-wrap">
+                {% if appt.status == 'pending' %}
+                  <a href="{% url 'appointments:update_status' appt.pk 'confirmed' %}" class="btn btn-sm btn-outline-primary">Tasdiqlash</a>
+                {% endif %}
+                {% if appt.status != 'completed' and appt.status != 'cancelled' %}
+                  <a href="{% url 'appointments:add_medical_record' appt.pk %}" class="btn btn-sm btn-clinic">Tashxis yozish</a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-4">Bugun qabul yo'q</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h5 class="mb-3">Kelayotgan qabullar</h5>
+  <div class="table-responsive">
+    <table class="table table-clinic align-middle">
+      <thead><tr><th>Bemor</th><th>Sana</th><th>Vaqt</th><th>Holat</th></tr></thead>
+      <tbody>
+        {% for appt in upcoming %}
+          <tr>
+            <td>{{ appt.patient.get_full_name }}</td>
+            <td>{{ appt.date }}</td>
+            <td>{{ appt.time|time:"H:i" }}</td>
+            <td><span class="badge-status badge-status-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="text-center text-muted py-4">Kelayotgan qabul yo'q</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

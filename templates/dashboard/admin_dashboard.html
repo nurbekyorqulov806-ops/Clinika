@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Admin panel — MediCare{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="section-title">Boshqaruv paneli</h2>
+
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+      <div class="stat-card bg-teal">
+        <div class="stat-number">{{ total_patients }}</div><div>Bemorlar</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card bg-blue">
+        <div class="stat-number">{{ total_doctors }}</div><div>Shifokorlar</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card bg-purple">
+        <div class="stat-number">{{ total_appointments }}</div><div>Jami navbatlar</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card bg-orange">
+        <div class="stat-number">{{ estimated_revenue }}</div><div>Taxminiy daromad (so'm)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <div class="col-lg-8">
+      <div class="card-clinic p-4">
+        <h5 class="mb-3">So'nggi 6 oylik navbatlar dinamikasi</h5>
+        <canvas id="appointmentsChart" height="110"></canvas>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card-clinic p-4">
+        <h5 class="mb-3">Holat bo'yicha</h5>
+        <p class="d-flex justify-content-between"><span>Yakunlangan</span><strong class="text-success">{{ completed_count }}</strong></p>
+        <p class="d-flex justify-content-between"><span>Kutilmoqda</span><strong class="text-warning">{{ pending_count }}</strong></p>
+        <p class="d-flex justify-content-between"><span>O'rtacha baho</span><strong>{{ avg_rating|default:"—" }} / 5</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <div class="col-lg-6">
+      <div class="card-clinic p-4">
+        <h5 class="mb-3">Bo'limlar bo'yicha shifokorlar</h5>
+        <table class="table table-clinic">
+          <thead><tr><th>Bo'lim</th><th>Shifokorlar soni</th></tr></thead>
+          <tbody>
+            {% for dept in department_stats %}
+              <tr><td>{{ dept.name }}</td><td>{{ dept.doctor_count }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card-clinic p-4">
+        <h5 class="mb-3">Eng faol shifokorlar</h5>
+        <table class="table table-clinic">
+          <thead><tr><th>Shifokor</th><th>Qabullar soni</th></tr></thead>
+          <tbody>
+            {% for doc in top_doctors %}
+              <tr><td>Dr. {{ doc.user.get_full_name }}</td><td>{{ doc.appt_count }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-clinic p-4">
+    <h5 class="mb-3">So'nggi navbatlar</h5>
+    <table class="table table-clinic align-middle">
+      <thead><tr><th>Bemor</th><th>Shifokor</th><th>Sana</th><th>Holat</th></tr></thead>
+      <tbody>
+        {% for appt in recent_appointments %}
+          <tr>
+            <td>{{ appt.patient.get_full_name }}</td>
+            <td>Dr. {{ appt.doctor.user.get_full_name }}</td>
+            <td>{{ appt.date }} {{ appt.time|time:"H:i" }}</td>
+            <td><span class="badge-status badge-status-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="text-center text-muted py-4">Navbatlar yo'q</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  const ctx = document.getElementById('appointmentsChart');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        label: 'Navbatlar soni',
+        data: {{ chart_data|safe }},
+        borderColor: '#0d9488',
+        backgroundColor: 'rgba(13,148,136,0.15)',
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Mening navbatlarim — MediCare{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="section-title">Mening navbatlarim</h2>
+
+  <h5 class="mb-3">Kelayotgan qabullar</h5>
+  <div class="row g-3 mb-5">
+    {% for appt in upcoming %}
+      <div class="col-md-6">
+        <div class="card-clinic p-3 d-flex flex-row align-items-center gap-3">
+          <img src="{{ appt.doctor.user.avatar.url }}" class="avatar-circle avatar-sm" alt="">
+          <div class="flex-grow-1">
+            <strong>Dr. {{ appt.doctor.user.get_full_name }}</strong>
+            <div class="text-muted small">{{ appt.date }} &middot; {{ appt.time|time:"H:i" }}</div>
+          </div>
+          <span class="badge-status badge-status-{{ appt.status }}">{{ appt.get_status_display }}</span>
+          {% if appt.status == 'pending' or appt.status == 'confirmed' %}
+            <form method="post" action="{% url 'appointments:cancel' appt.pk %}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger">Bekor qilish</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state"><i class="bi bi-calendar-x"></i><p>Kelayotgan qabul yo'q.</p></div>
+    {% endfor %}
+  </div>
+
+  <h5 class="mb-3">Tarix</h5>
+  <div class="row g-3 mb-5">
+    {% for appt in history %}
+      <div class="col-md-6">
+        <div class="card-clinic p-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <strong>Dr. {{ appt.doctor.user.get_full_name }}</strong>
+              <div class="text-muted small">{{ appt.date }} &middot; {{ appt.time|time:"H:i" }}</div>
+            </div>
+            <span class="badge-status badge-status-{{ appt.status }}">{{ appt.get_status_display }}</span>
+          </div>
+          {% if appt.status == 'completed' %}
+            <form method="post" action="{% url 'appointments:leave_review' appt.pk %}" class="d-flex gap-2 mt-3">
+              {% csrf_token %}
+              <select name="rating" class="form-select form-select-sm w-auto">
+                {% for i in "12345" %}<option value="{{ i }}">{{ i }} yulduz</option>{% endfor %}
+              </select>
+              <input type="text" name="comment" class="form-control form-control-sm" placeholder="Sharh qoldiring...">
+              <button class="btn btn-sm btn-clinic">Yuborish</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state"><i class="bi bi-clock-history"></i><p>Tarix bo'sh.</p></div>
+    {% endfor %}
+  </div>
+
+  <h5 class="mb-3">Laboratoriya natijalari</h5>
+  <div class="card-clinic p-3">
+    {% for lab in lab_results %}
+      <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+        <span><i class="bi bi-file-earmark-medical me-2"></i>{{ lab.title }}</span>
+        <a href="{{ lab.file.url }}" target="_blank" class="btn btn-sm btn-outline-clinic">Yuklab olish</a>
+      </div>
+    {% empty %}
+      <p class="text-muted mb-0">Hozircha natijalar yo'q.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

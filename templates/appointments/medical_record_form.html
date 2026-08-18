@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Tashxis yozish — MediCare{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card-clinic p-4">
+        <h5 class="mb-4">Bemor: {{ appointment.patient.get_full_name }} — {{ appointment.date }}</h5>
+        <form method="post" class="form-clinic">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Tashxis</label>
+            {{ form.diagnosis }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Retsept / tavsiyalar</label>
+            {{ form.prescription }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Qo'shimcha izoh</label>
+            {{ form.notes }}
+          </div>
+          <button type="submit" class="btn btn-clinic w-100 py-2">Saqlash va yakunlash</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

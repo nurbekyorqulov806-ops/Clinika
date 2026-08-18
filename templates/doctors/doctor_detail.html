@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Dr. {{ doctor.user.get_full_name }} — MediCare{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card-clinic p-4 text-center">
+        <img src="{{ doctor.user.avatar.url }}" class="avatar-circle avatar-xl mx-auto" alt="{{ doctor.user.get_full_name }}">
+        <h4 class="mt-3 mb-1">Dr. {{ doctor.user.get_full_name }}</h4>
+        <span class="specialization-badge mx-auto mb-3">{{ doctor.specialization }}</span>
+        <ul class="list-unstyled text-start small text-muted">
+          <li class="mb-2"><i class="bi bi-building me-2"></i>{{ doctor.department.name|default:"—" }}</li>
+          <li class="mb-2"><i class="bi bi-briefcase me-2"></i>{{ doctor.experience_years }} yillik tajriba</li>
+          <li class="mb-2"><i class="bi bi-clock me-2"></i>{{ doctor.schedule|default:"Kelishilgan holda" }}</li>
+          <li class="mb-2"><i class="bi bi-door-open me-2"></i>Xona: {{ doctor.room_number|default:"—" }}</li>
+          <li class="mb-2"><i class="bi bi-cash-coin me-2"></i>{{ doctor.price }} so'm</li>
+        </ul>
+        {% if doctor.average_rating %}
+          <p class="rating-stars mb-3">
+            {% for i in "12345" %}
+              <i class="bi bi-star{% if forloop.counter <= doctor.average_rating %}-fill{% endif %}"></i>
+            {% endfor %}
+            <span class="text-muted small">({{ doctor.review_count }} sharh)</span>
+          </p>
+        {% endif %}
+        {% if user.is_authenticated and user.is_patient_role %}
+          <a href="{% url 'appointments:book' doctor.pk %}" class="btn btn-clinic w-100">
+            <i class="bi bi-calendar-plus"></i> Navbatga yozilish
+          </a>
+        {% elif not user.is_authenticated %}
+          <a href="{% url 'accounts:login' %}" class="btn btn-clinic w-100">Yozilish uchun kiring</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="card-clinic p-4 mb-4">
+        <h5 class="fw-bold mb-3">Shifokor haqida</h5>
+        <p class="text-muted">{{ doctor.bio|default:"Ma'lumot kiritilmagan." }}</p>
+      </div>
+      <div class="card-clinic p-4">
+        <h5 class="fw-bold mb-3">Bemorlar sharhlari ({{ reviews.count }})</h5>
+        {% for review in reviews %}
+          <div class="border-bottom pb-3 mb-3">
+            <div class="d-flex justify-content-between">
+              <strong>{{ review.patient.get_full_name|default:review.patient.username }}</strong>
+              <span class="rating-stars">
+                {% for i in "12345" %}
+                  <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill{% endif %}"></i>
+                {% endfor %}
+              </span>
+            </div>
+            <p class="text-muted small mb-0 mt-1">{{ review.comment }}</p>
+            <span class="text-muted small">{{ review.created_at|date:"d.m.Y" }}</span>
+          </div>
+        {% empty %}
+          <p class="text-muted">Hozircha sharhlar yo'q.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

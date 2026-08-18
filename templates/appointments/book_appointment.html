@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Navbatga yozilish — MediCare{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card-clinic p-4">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <img src="{{ doctor.user.avatar.url }}" class="avatar-circle avatar-md" alt="">
+          <div>
+            <h5 class="mb-0">Dr. {{ doctor.user.get_full_name }}</h5>
+            <span class="text-muted small">{{ doctor.specialization }}</span>
+          </div>
+        </div>
+        <form method="post" class="form-clinic">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Sana</label>
+            {{ form.date }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Vaqt</label>
+            {{ form.time }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Murojaat sababi</label>
+            {{ form.reason }}
+          </div>
+          {% if form.non_field_errors %}
+            <div class="text-danger small mb-2">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <button type="submit" class="btn btn-clinic w-100 py-2"><i class="bi bi-calendar-check"></i> Yozilish</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

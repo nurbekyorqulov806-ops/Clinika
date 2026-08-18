@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Shifokorlar — MediCare{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="section-title">Shifokorlarimiz</h2>
+
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-md-6">
+      <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Ism yoki mutaxassislik bo'yicha qidirish...">
+    </div>
+    <div class="col-md-4">
+      <select name="department" class="form-select">
+        <option value="">Barcha bo'limlar</option>
+        {% for dept in departments %}
+          <option value="{{ dept.id }}" {% if selected_department == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-clinic w-100"><i class="bi bi-search"></i> Qidirish</button>
+    </div>
+  </form>
+
+  <div class="row g-4">
+    {% for doctor in page_obj %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card-clinic doctor-card p-4 text-center h-100">
+          <img src="{{ doctor.user.avatar.url }}" class="avatar-circle avatar-lg" alt="{{ doctor.user.get_full_name }}">
+          <h5 class="mb-1">Dr. {{ doctor.user.get_full_name }}</h5>
+          <span class="specialization-badge mx-auto mb-2">{{ doctor.specialization }}</span>
+          <p class="text-muted small mb-2">
+            <i class="bi bi-building"></i> {{ doctor.department.name|default:"—" }} &middot;
+            <i class="bi bi-briefcase"></i> {{ doctor.experience_years }} yil tajriba
+          </p>
+          {% if doctor.average_rating %}
+            <p class="rating-stars mb-2">
+              {% for i in "12345" %}
+                <i class="bi bi-star{% if forloop.counter <= doctor.average_rating %}-fill{% endif %}"></i>
+              {% endfor %}
+              <span class="text-muted small">({{ doctor.review_count }})</span>
+            </p>
+          {% else %}
+            <p class="text-muted small mb-2">Hali baholanmagan</p>
+          {% endif %}
+          <p class="fw-bold mb-3">{{ doctor.price }} so'm</p>
+          <a href="{% url 'doctors:detail' doctor.pk %}" class="btn btn-outline-clinic mt-auto">Batafsil</a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state">
+        <i class="bi bi-emoji-frown"></i>
+        <p>Hech qanday shifokor topilmadi.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+    <nav class="mt-5">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&department={{ selected_department }}">&laquo;</a></li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&q={{ query }}&department={{ selected_department }}">{{ num }}</a>
+          </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&department={{ selected_department }}">&raquo;</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}
