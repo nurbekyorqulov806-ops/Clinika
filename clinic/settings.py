@@ -72,7 +72,7 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('clinic_db', default='clinic_db'),
+        'NAME': config('DB_NAME', default='clinic_db'),
         'USER': config('DB_USER', default='root'),
         'PASSWORD': config('DB_PASSWORD', default='0109'),
         'HOST': config('DB_HOST', default='127.0.0.1'),
